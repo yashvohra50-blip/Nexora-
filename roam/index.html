@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ROAM — Tourism Demand Intelligence Platform</title>
+  <meta name="description" content="ROAM intelligently redistributes tourism demand so travelers discover better experiences while local destinations and businesses receive the visitors they deserve.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧭</text></svg>">
+  
+  <!-- Modern Clean Stylesheet Cascade -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/map.css">
+  <link rel="stylesheet" href="css/modes.css">
+</head>
+<body>
+
+  <!-- Top Application Navigation Header -->
+  <header class="roam-header">
+    <div class="app-container" style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+      <div class="brand-wrap">
+        <a href="#" class="brand-logo">
+          <span class="brand-mark">🧭</span> ROAM
+        </a>
+        <span class="tagline-badge">Tourism Demand Intelligence</span>
+      </div>
+
+      <!-- Mode Switcher (The 3-Sided Ecosystem) -->
+      <nav class="mode-switcher" aria-label="Mode Switcher">
+        <button class="mode-btn active" data-mode="tourist">
+          <span>🗺️</span> Tourist Mode
+        </button>
+        <button class="mode-btn" data-mode="business">
+          <span>🏪</span> Local Business Mode
+        </button>
+        <button class="mode-btn" data-mode="authority">
+          <span>🏛️</span> Destination Authority
+        </button>
+      </nav>
+
+      <!-- Telemetry & Tour Actions -->
+      <div class="nav-actions">
+        <div class="demo-watermark" title="Deterministic Demonstration Data for Jaipur">
+          <span class="demo-pulse-dot"></span>
+          <span>DEMO DATA: JAIPUR</span>
+        </div>
+        <button id="launch-tour-btn" class="tour-trigger-btn">
+          <span>⚡ 90s Hackathon Tour</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-container">
+    
+    <!-- Hero Experience -->
+    <section class="hero-section">
+      <div class="hero-super">Tourism's Missing Software Layer</div>
+      <h1 class="hero-headline">DON'T FOLLOW THE CROWD.</h1>
+      <p class="hero-subheadline">
+        ROAM intelligently redistributes tourism demand so travelers discover authentic, uncrowded experiences while local businesses and heritage sites receive the visitors they deserve.
+      </p>
+
+      <!-- Interactive Input Form Bar -->
+      <form id="hero-config-form" class="configurator-bar">
+        <div class="config-item">
+          <label for="input-destination" class="config-label">Where are you going?</label>
+          <select id="input-destination" class="config-select">
+            <option value="Jaipur" selected>Jaipur, Rajasthan</option>
+            <option value="Kyoto">Kyoto, Japan (Coming Soon)</option>
+            <option value="Florence">Florence, Italy (Coming Soon)</option>
+          </select>
+        </div>
+
+        <div class="config-item">
+          <label for="input-dates" class="config-label">When are you visiting?</label>
+          <select id="input-dates" class="config-select">
+            <option value="12-15-sept" selected>12 Sept — 15 Sept</option>
+            <option value="16-19-sept">16 Sept — 19 Sept</option>
+            <option value="20-24-sept">20 Sept — 24 Sept</option>
+          </select>
+        </div>
+
+        <div class="config-item">
+          <label for="input-group" class="config-label">Travelling with?</label>
+          <select id="input-group" class="config-select">
+            <option value="Family" selected>Family</option>
+            <option value="Couple">Couple</option>
+            <option value="Solo">Solo Traveler</option>
+            <option value="Friends">Friends</option>
+          </select>
+        </div>
+
+        <div class="config-item">
+          <label for="input-priority" class="config-label">What's your priority?</label>
+          <select id="input-priority" class="config-select">
+            <option value="Culture" selected>Culture &amp; Heritage</option>
+            <option value="Food">Culinary &amp; Street Food</option>
+            <option value="Adventure">Adventure &amp; Nature</option>
+            <option value="Relaxation">Relaxation &amp; Calm</option>
+            <option value="Local">Artisan &amp; Local Crafts</option>
+          </select>
+        </div>
+
+        <button type="submit" class="config-submit-btn">
+          <span>OPTIMIZE MY EXPERIENCE ➔</span>
+        </button>
+      </form>
+
+      <div style="margin-top:14px; display:flex; gap:16px;">
+        <button id="hero-how-it-works-btn" style="background:none; border:none; color:var(--text-secondary); font-size:0.85rem; font-weight:600; cursor:pointer; text-decoration:underline;">
+          See How Demand Redistribution Works ↓
+        </button>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         1. MODE: TOURIST MODE
+         ============================================================ -->
+    <div id="mode-view-tourist" class="mode-view active">
+      <!-- Live Destination Health Telemetry Bar -->
+      <div id="tourist-health-bar" class="health-telemetry-bar"></div>
+
+      <!-- Main Stage Grid: Map on Left, Recommendations on Right -->
+      <div id="tourist-main-stage" class="stage-grid">
+        
+        <!-- Left: Destination Load Map -->
+        <div class="map-card">
+          <div class="map-toolbar">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-size:1.05rem; font-weight:800; color:#fff;">DESTINATION LOAD MAP</span>
+              <span class="badge" style="background:rgba(99,102,241,0.12); color:#a5b4fc; border:1px solid rgba(99,102,241,0.3);">
+                LIVE DEMAND VECTORS
+              </span>
+            </div>
+
+            <div class="map-filters">
+              <button class="map-filter-btn active" data-filter="all">All Sites (12)</button>
+              <button class="map-filter-btn" data-filter="critical">Overloaded (🔴 3)</button>
+              <button class="map-filter-btn" data-filter="optimal">Underutilized (🟢 7)</button>
+            </div>
+          </div>
+
+          <!-- SVG Canvas Container -->
+          <div id="map-canvas-container" class="map-canvas-wrap"></div>
+
+          <!-- Map Status Legend -->
+          <div class="map-legend">
+            <div class="legend-item">
+              <span class="legend-dot dot-critical"></span>
+              <span>80-100% Critical Load</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-dot dot-elevated"></span>
+              <span>60-79% Elevated</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-dot dot-optimal"></span>
+              <span>0-59% Optimal &amp; Calm</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Intelligent Alternative Recommendations -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div style="font-size:0.75rem; text-transform:uppercase; color:var(--brand-primary); font-weight:700;">
+                Demand Redistribution Intelligence
+              </div>
+              <h2 class="card-title">ROAM RECOMMENDS</h2>
+            </div>
+            <span class="badge badge-optimal">ALGORITHM ACTIVE</span>
+          </div>
+
+          <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:14px; line-height:1.45;">
+            Jaipur's most popular attractions are currently experiencing severe visitor concentration. Try these verified high-quality alternatives to save time, avoid crowds, and support local heritage.
+          </p>
+
+          <!-- Alternative Recommendation Cards Stack -->
+          <div id="recommendations-stack" class="recommendation-stack"></div>
+        </div>
+
+      </div>
+
+      <!-- The Magic Moment: REROUTE MY DAY Banner -->
+      <div class="reroute-banner">
+        <div class="reroute-text">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:1.2rem;">⚡</span>
+            <h3>Amber Fort is experiencing severe congestion (94% load • 65 min wait)</h3>
+          </div>
+          <p>Click below to simulate real-time dynamic rerouting. ROAM restructures your schedule to avoid peak crowds.</p>
+        </div>
+        <button id="reroute-trigger-btn" class="reroute-btn">
+          <span>⚡ REROUTE MY DAY</span>
+        </button>
+      </div>
+
+      <!-- Itinerary & Quantified Impact Dashboard -->
+      <div class="card" style="margin-top: var(--space-md);">
+        <div id="itinerary-container"></div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         2. MODE: LOCAL BUSINESS INTELLIGENCE MODE
+         ============================================================ -->
+    <div id="mode-view-business" class="mode-view">
+      <div style="margin: var(--space-xl) 0 var(--space-md);">
+        <div style="font-size:0.75rem; text-transform:uppercase; color:var(--brand-cyan); font-weight:700; letter-spacing:0.1em;">
+          Enterprise Footfall Intelligence
+        </div>
+        <h2 style="font-size:1.8rem; font-weight:800;">LOCAL BUSINESS INTELLIGENCE DASHBOARD</h2>
+        <p style="color:var(--text-secondary);">
+          Connect grassroots artisans, family kitchens, and cultural workshops directly into the visitor flow when major tourist monuments bottleneck.
+        </p>
+      </div>
+
+      <div id="business-mode-container"></div>
+    </div>
+
+    <!-- ============================================================
+         3. MODE: DESTINATION AUTHORITY MODE
+         ============================================================ -->
+    <div id="mode-view-authority" class="mode-view">
+      <div style="margin: var(--space-xl) 0 var(--space-md);">
+        <div style="font-size:0.75rem; text-transform:uppercase; color:var(--brand-purple); font-weight:700; letter-spacing:0.1em;">
+          Sustainable Tourism Management
+        </div>
+        <h2 style="font-size:1.8rem; font-weight:800;">CITY TOURISM CONTROL CENTER</h2>
+        <p style="color:var(--text-secondary);">
+          Monitor heritage asset strain, evaluate tourist dispersal metrics, and simulate policy interventions in real time.
+        </p>
+      </div>
+
+      <div id="authority-mode-container"></div>
+    </div>
+
+    <!-- Architectural Contrast Section: "SEE THE DIFFERENCE" -->
+    <section id="difference-section-container" class="difference-section"></section>
+
+    <!-- City-Scale Macro Impact Calculator -->
+    <section id="calc-section-container" class="calc-section"></section>
+
+    <!-- The Three-Sided Value Proposition -->
+    <section style="margin: var(--space-2xl) 0; padding: var(--space-xl) 0; border-top:1px solid var(--border-subtle);">
+      <div style="text-align:center; margin-bottom: var(--space-xl);">
+        <div style="font-size:0.75rem; text-transform:uppercase; color:var(--brand-primary); font-weight:700; letter-spacing:0.12em; margin-bottom:4px;">
+          The Ecosystem Engine
+        </div>
+        <h2 style="font-size:1.8rem; font-weight:800;">THE THREE-SIDED VALUE PROPOSITION</h2>
+        <p style="color:var(--text-secondary); max-width:620px; margin:0 auto;">
+          ROAM creates a compounding positive feedback loop across every level of the travel economy.
+        </p>
+      </div>
+
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:var(--space-lg);">
+        <div class="card" style="border-top: 3px solid var(--brand-primary);">
+          <div style="font-size:1.5rem; margin-bottom:8px;">🎒</div>
+          <h3 style="font-size:1.15rem; font-weight:700; margin-bottom:6px;">Tourists</h3>
+          <p style="font-size:0.88rem; color:var(--text-secondary); line-height:1.5;">
+            Discover authentic uncrowded wonders, skip exhausting 60-minute monument queues, save travel costs, and experience deeper culture without the chaos.
+          </p>
+        </div>
+
+        <div class="card" style="border-top: 3px solid var(--brand-cyan);">
+          <div style="font-size:1.5rem; margin-bottom:8px;">🏪</div>
+          <h3 style="font-size:1.15rem; font-weight:700; margin-bottom:6px;">Local Businesses</h3>
+          <p style="font-size:0.88rem; color:var(--text-secondary); line-height:1.5;">
+            Capture high-intent travelers diverted directly to your door, gain visibility beyond gatekept tour operators, and grow local artisan revenue.
+          </p>
+        </div>
+
+        <div class="card" style="border-top: 3px solid var(--load-optimal);">
+          <div style="font-size:1.5rem; margin-bottom:8px;">🏛️</div>
+          <h3 style="font-size:1.15rem; font-weight:700; margin-bottom:6px;">Destination Authorities</h3>
+          <p style="font-size:0.88rem; color:var(--text-secondary); line-height:1.5;">
+            Protect centuries-old monuments from structural wear, balance transit corridors, and build sustainable, distributed economic growth.
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Guided Presentation Tour Modal (For Hackathon Judges) -->
+  <div id="tour-modal-backdrop" class="tour-modal-backdrop"></div>
+
+  <!-- Application Footer -->
+  <footer class="roam-footer">
+    <div class="footer-quote">
+      “Tourism should not mean following the crowd. ROAM redistributes the journey and redistributes the opportunity.”
+    </div>
+    <div>
+      ROAM Platform • Tourism Demand Intelligence • Built for Hackathon Excellence
+    </div>
+  </footer>
+
+  <!-- Application Entry Point -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
