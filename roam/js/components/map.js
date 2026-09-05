@@ -1,25 +1,29 @@
 /**
  * ROAM Interactive Destination Load Map
  * Vector SVG Canvas with dynamic nodes, radar pulses & demand flow vectors
+ * Supports any active Indian destination or graceful partial overview
  */
-
-import { JAIPUR_DESTINATION } from '../data/jaipur.js';
 
 export class DestinationLoadMap {
   constructor(containerId, options = {}) {
     this.container = document.getElementById(containerId);
-    this.attractions = JAIPUR_DESTINATION.attractions;
+    this.locationData = null;
+    this.attractions = [];
+    this.flowVectors = [];
     this.currentFilter = 'all'; // 'all' | 'critical' | 'optimal'
     this.onNodeClick = options.onNodeClick || null;
     this.showFlowVectors = true;
     this.activeReroute = false;
-    this.init();
   }
 
-  init() {
-    if (!this.container) return;
+  setDestination(locationData) {
+    this.locationData = locationData;
+    this.attractions = locationData.attractions || [];
+    this.flowVectors = locationData.flowVectors || [
+      { from: this.attractions[0]?.id, to: this.attractions[2]?.id, color: '#8b5cf6' },
+      { from: this.attractions[1]?.id, to: this.attractions[3]?.id, color: '#10b981' }
+    ].filter(v => v.from && v.to);
     this.render();
-    this.attachEvents();
   }
 
   setFilter(filter) {
@@ -33,6 +37,14 @@ export class DestinationLoadMap {
   }
 
   render() {
+    if (!this.container) return;
+
+    // Graceful Partial Intelligence fallback on map
+    if (!this.locationData || this.locationData.intelligenceTier === 'PARTIAL') {
+      this.renderPartialMap();
+      return;
+    }
+
     const width = 860;
     const height = 620;
 
@@ -43,19 +55,9 @@ export class DestinationLoadMap {
       filteredNodes = this.attractions.filter(a => a.status === 'optimal');
     }
 
-    // Generate flow vectors connecting overloaded nodes to alternative nodes
-    const flowVectors = [
-      { from: 'amber-fort', to: 'albert-hall', color: '#8b5cf6' },
-      { from: 'amber-fort', to: 'panna-meena', color: '#10b981' },
-      { from: 'hawa-mahal', to: 'royal-gaitor', color: '#10b981' },
-      { from: 'city-palace', to: 'sisodia-rani', color: '#10b981' },
-      { from: 'jantar-mantar', to: 'anokhi-museum', color: '#8b5cf6' }
-    ];
-
     let svgHtml = `
       <svg class="map-svg" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <!-- Radial glow gradients -->
           <radialGradient id="glow-critical" cx="50%" cy="50%" r="50%">
             <stop offset="0%" stop-color="#ef4444" stop-opacity="0.45" />
             <stop offset="100%" stop-color="#ef4444" stop-opacity="0" />
@@ -70,7 +72,7 @@ export class DestinationLoadMap {
           </radialGradient>
         </defs>
 
-        <!-- Background Coordinate Grid lines -->
+        <!-- Coordinate Grid -->
         <g class="map-grid">
           ${Array.from({ length: 12 }).map((_, i) => `
             <line x1="${i * 80}" y1="0" x2="${i * 80}" y2="${height}" class="map-grid-line" />
@@ -78,19 +80,18 @@ export class DestinationLoadMap {
           `).join('')}
         </g>
 
-        <!-- Topography / Aravalli Ridge Silhouettes -->
-        <path d="M 280,60 Q 420,160 380,310 T 360,540" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="18" stroke-linecap="round" />
-        <path d="M 640,90 Q 720,280 660,510" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="14" stroke-linecap="round" />
+        <!-- Dynamic Natural Topography Contours -->
+        <path d="M 180,80 Q 320,180 340,330 T 400,560" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="20" stroke-linecap="round" />
+        <path d="M 600,100 Q 680,290 620,530" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="16" stroke-linecap="round" />
 
-        <!-- Demand Flow Vectors (Arrows & dashed animations) -->
+        <!-- Demand Flow Vectors -->
         <g class="demand-vectors">
-          ${flowVectors.map(vec => {
+          ${this.flowVectors.map(vec => {
             const src = this.attractions.find(a => a.id === vec.from);
             const dst = this.attractions.find(a => a.id === vec.to);
             if (!src || !dst) return '';
 
-            // Curved quadratic Bezier control point
-            const midX = (src.coords.x + dst.coords.x) / 2 + (src.coords.y < dst.coords.y ? -40 : 40);
+            const midX = (src.coords.x + dst.coords.x) / 2 + (src.coords.y < dst.coords.y ? -35 : 35);
             const midY = (src.coords.y + dst.coords.y) / 2;
 
             return `
@@ -98,9 +99,10 @@ export class DestinationLoadMap {
                 <path d="M ${src.coords.x},${src.coords.y} Q ${midX},${midY} ${dst.coords.x},${dst.coords.y}" 
                       fill="none" 
                       stroke="${vec.color}" 
-                      stroke-width="${this.activeReroute ? '2.5' : '1.8'}" 
-                      class="demand-flow-vector" />
-                <circle cx="${midX}" cy="${midY}" r="3" fill="${vec.color}" opacity="0.8" />
+                      stroke-width="2.5" 
+                      stroke-dasharray="6,4" 
+                      class="flow-path-animated" />
+                <circle cx="${dst.coords.x}" cy="${dst.coords.y}" r="4" fill="${vec.color}" />
               </g>
             `;
           }).join('')}
@@ -108,94 +110,71 @@ export class DestinationLoadMap {
 
         <!-- Attraction Nodes -->
         <g class="map-nodes">
-          ${filteredNodes.map(node => {
-            const isCrit = node.status === 'critical';
-            const isElev = node.status === 'elevated';
-            const color = isCrit ? '#ef4444' : isElev ? '#f59e0b' : '#10b981';
-            const glowId = isCrit ? 'glow-critical' : isElev ? 'glow-elevated' : 'glow-optimal';
-            const radius = isCrit ? 14 : isElev ? 12 : 10;
+          ${filteredNodes.map(att => {
+            const isCritical = att.status === 'critical';
+            const isElevated = att.status === 'elevated';
+            const isOptimal = att.status === 'optimal';
+            
+            const color = isCritical ? '#ef4444' : isElevated ? '#f59e0b' : '#10b981';
+            const glowId = isCritical ? 'glow-critical' : isElevated ? 'glow-elevated' : 'glow-optimal';
+            const radius = isCritical ? 24 : isElevated ? 20 : 16;
 
             return `
-              <g class="map-node-group" data-id="${node.id}" transform="translate(${node.coords.x}, ${node.coords.y})">
-                <!-- Outer Ambient Glow -->
-                <circle cx="0" cy="0" r="${radius * 2.8}" fill="url(#${glowId})" />
-
-                <!-- Radar Pulse for critical & elevated nodes -->
-                ${isCrit ? `<circle cx="0" cy="0" r="14" fill="none" stroke="#ef4444" class="radar-ring-critical" />` : ''}
-                ${isElev ? `<circle cx="0" cy="0" r="12" fill="none" stroke="#f59e0b" class="radar-ring-elevated" />` : ''}
-
-                <!-- Base Node Circle -->
-                <circle cx="0" cy="0" r="${radius}" fill="#0d131f" stroke="${color}" stroke-width="2.5" />
-                <circle cx="0" cy="0" r="${radius - 4}" fill="${color}" />
-
-                <!-- Load percentage badge label -->
-                <rect x="18" y="-12" width="48" height="20" rx="4" fill="#0c121e" stroke="${color}" stroke-width="1" opacity="0.95" />
-                <text x="42" y="2" fill="${color}" font-size="10" font-family="monospace" font-weight="700" text-anchor="middle" dominant-baseline="middle">
-                  ${node.loadPercentage}%
+              <g class="map-node ${isCritical ? 'node-pulse' : ''}" 
+                 data-id="${att.id}" 
+                 style="cursor:pointer;"
+                 transform="translate(${att.coords.x}, ${att.coords.y})">
+                
+                <circle r="${radius * 2.2}" fill="url(#${glowId})" />
+                <circle r="${radius}" fill="#0c121e" stroke="${color}" stroke-width="2.5" />
+                <text y="4" text-anchor="middle" fill="#fff" font-size="11" font-weight="800" font-family="var(--font-mono)">
+                  ${att.loadPercentage}%
                 </text>
 
-                <!-- Name Label -->
-                <text x="18" y="-18" fill="#f8fafc" font-size="11" font-weight="700" letter-spacing="0.02em" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.9))">
-                  ${node.name}
-                </text>
+                <!-- Label Badge -->
+                <g transform="translate(0, ${radius + 16})">
+                  <rect x="-65" y="-12" width="130" height="24" rx="4" fill="rgba(12, 18, 30, 0.9)" stroke="${color}" stroke-width="1" />
+                  <text y="3" text-anchor="middle" fill="#f8fafc" font-size="10.5" font-weight="700" font-family="var(--font-sans)">
+                    ${att.name.length > 17 ? att.name.substring(0, 16) + '…' : att.name}
+                  </text>
+                </g>
               </g>
             `;
           }).join('')}
         </g>
       </svg>
-      <div id="map-tooltip" class="map-node-tooltip"></div>
     `;
 
     this.container.innerHTML = svgHtml;
-    this.attachNodeListeners();
+    this.attachNodeClickEvents();
   }
 
-  attachEvents() {
-    // Filter controls
-    const filterBtns = document.querySelectorAll('.map-filter-btn');
-    filterBtns.forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        filterBtns.forEach(b => b.classList.remove('active'));
-        e.target.classList.add('active');
-        this.setFilter(e.target.dataset.filter);
-      });
-    });
+  renderPartialMap() {
+    const loc = this.locationData;
+    this.container.innerHTML = `
+      <div style="height:100%; min-height:480px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:var(--space-xl); text-align:center; background:radial-gradient(circle at center, rgba(245, 158, 11, 0.06) 0%, transparent 70%);">
+        <span style="font-size:2.8rem; margin-bottom:12px;">🧭</span>
+        <span class="partial-badge">REGIONAL CLUSTER MAPPING ACTIVE</span>
+        <h3 style="font-size:1.6rem; font-weight:800; color:#fff; margin-bottom:6px;">${loc.name} Demand Telemetry</h3>
+        <p style="color:var(--text-secondary); max-width:560px; font-size:0.9rem; line-height:1.5; margin-bottom:16px;">
+          Sensor array and grassroots merchant onboarding are underway in the ${loc.district || loc.state} corridor. Live crowd redistribution will link directly to nearby regional hub: <strong style="color:var(--roam-accent)">${loc.nearbyHub || 'Jaipur'}</strong>.
+        </p>
+        <div style="display:flex; gap:10px; font-family:var(--font-mono); font-size:0.78rem; color:var(--text-muted);">
+          <span>COORDINATES: ${loc.coords?.lat || 26.48}° N, ${loc.coords?.lng || 74.55}° E</span>
+          <span>•</span>
+          <span>HERITAGE SITES MONITORED: ${(loc.heritagePoints || []).length || 3}</span>
+        </div>
+      </div>
+    `;
   }
 
-  attachNodeListeners() {
-    const tooltip = this.container.querySelector('#map-tooltip');
-    const nodes = this.container.querySelectorAll('.map-node-group');
-
-    nodes.forEach(nodeGroup => {
-      const id = nodeGroup.dataset.id;
-      const attraction = this.attractions.find(a => a.id === id);
-      if (!attraction) return;
-
-      nodeGroup.addEventListener('mouseenter', (e) => {
-        if (!tooltip) return;
-        const rect = this.container.getBoundingClientRect();
-        tooltip.style.display = 'block';
-        tooltip.style.left = `${attraction.coords.x}px`;
-        tooltip.style.top = `${attraction.coords.y - 10}px`;
-        tooltip.innerHTML = `
-          <div style="font-weight:700; color:#fff; font-size:0.9rem;">${attraction.name}</div>
-          <div style="color:var(--text-muted); font-size:0.75rem; text-transform:uppercase;">${attraction.category} • ${attraction.openHours}</div>
-          <div style="margin-top:4px; display:flex; gap:10px; font-family:monospace; font-size:0.8rem;">
-            <span style="color:${attraction.status === 'critical' ? '#ef4444' : attraction.status === 'elevated' ? '#f59e0b' : '#10b981'}; font-weight:700;">
-              Load: ${attraction.loadPercentage}%
-            </span>
-            <span>Wait: ${attraction.currentWaitMinutes} min</span>
-            <span>Fee: ₹${attraction.entryFeeINR}</span>
-          </div>
-        `;
-      });
-
-      nodeGroup.addEventListener('mouseleave', () => {
-        if (tooltip) tooltip.style.display = 'none';
-      });
-
-      nodeGroup.addEventListener('click', () => {
-        if (typeof this.onNodeClick === 'function') {
+  attachNodeClickEvents() {
+    const nodes = this.container.querySelectorAll('.map-node');
+    nodes.forEach(node => {
+      node.addEventListener('click', () => {
+        const id = node.dataset.id;
+        const attraction = this.attractions.find(a => a.id === id);
+        if (attraction && this.onNodeClick) {
           this.onNodeClick(attraction);
         }
       });

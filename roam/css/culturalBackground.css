@@ -1,0 +1,51 @@
+/**
+ * ROAM — Atmospheric Cultural Background & Ambient SVG Silhouette Layer
+ * Keeps silhouettes between 5%–15% opacity with silky 500ms crossfades
+ */
+
+.cultural-bg-layer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+  opacity: 1;
+  transition: opacity var(--transition-theme);
+}
+
+.cultural-bg-layer svg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Ambient Radial Glow over Active Location */
+.ambient-glow-layer {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1200px;
+  height: 500px;
+  background: radial-gradient(ellipse at 50% 0%, var(--roam-accent-glow, rgba(99, 102, 241, 0.18)) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 1;
+  transition: background var(--transition-theme);
+}
+
+/* Atmospheric Noise Texture Overlay */
+.atmosphere-texture {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 0);
+  background-size: 24px 24px;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.6;
+}

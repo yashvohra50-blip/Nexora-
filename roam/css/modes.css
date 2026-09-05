@@ -1,14 +1,11 @@
 /**
- * ROAM Specific Mode Layouts:
- * - Tourist Mode (Live Health & Alternative Recommender)
- * - Business Intelligence Mode (Local Businesses & Pulse Promotion)
- * - Destination Authority Mode (City Tourism Control Center & Policy Simulator)
+ * ROAM — View Containers & Mode Layouts
+ * DISCOVER, EXPLORE, MARKET, CONTROL, IMPACT
  */
 
-/* Mode Container Visibility */
 .mode-view {
   display: none;
-  animation: fadeIn 300ms ease;
+  animation: fadeIn 300ms ease forwards;
 }
 
 .mode-view.active {
@@ -20,163 +17,34 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* ============================================================
-   1. TOURIST MODE SPECIFICS
-   ============================================================ */
-.recommendation-stack {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
-  max-height: 570px;
-  overflow-y: auto;
-  padding-right: 4px;
-}
-
-.alternative-card {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: var(--space-md);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-  transition: all var(--transition-fast);
-}
-
-.alternative-card:hover {
-  border-color: var(--border-medium);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
-.alt-pair-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-}
-
-.alt-site-name {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.alt-site-category {
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  font-weight: 600;
-  letter-spacing: 0.06em;
-}
-
-.alt-comparison-row {
+.stage-grid {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  gap: var(--space-sm);
-  padding: 8px;
-  background: rgba(0, 0, 0, 0.25);
-  border-radius: var(--radius-sm);
-  font-size: 0.8rem;
-  font-family: var(--font-mono);
-}
-
-.comparison-from {
-  color: #fca5a5;
-}
-
-.comparison-to {
-  color: #a7f3d0;
-  text-align: right;
-}
-
-.alt-reasoning-box {
-  background: rgba(99, 102, 241, 0.08);
-  border-left: 3px solid var(--brand-primary);
-  padding: 8px 12px;
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-  font-size: 0.82rem;
-  color: #c7d2fe;
-  line-height: 1.45;
-}
-
-/* Why This Recommendation? Breakdown inspector */
-.breakdown-bars {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  margin-top: 4px;
-}
-
-.breakdown-bar-item {
-  font-size: 0.72rem;
-  color: var(--text-secondary);
-}
-
-.breakdown-bar-fill {
-  height: 4px;
-  background: var(--brand-primary);
-  border-radius: var(--radius-full);
-  margin-top: 3px;
-}
-
-/* Itinerary Timeline */
-.itinerary-timeline {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-top: var(--space-md);
-}
-
-.timeline-row {
-  display: grid;
-  grid-template-columns: 110px 1fr auto;
-  align-items: center;
-  gap: var(--space-md);
-  padding: 10px 14px;
-  border-radius: var(--radius-sm);
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid var(--border-subtle);
-  font-size: 0.85rem;
-}
-
-.timeline-row.congested {
-  border-left: 4px solid var(--load-critical);
-}
-
-.timeline-row.optimized {
-  border-left: 4px solid var(--load-optimal);
-  background: rgba(16, 185, 129, 0.04);
-}
-
-/* ============================================================
-   2. BUSINESS INTELLIGENCE MODE SPECIFICS
-   ============================================================ */
-.biz-dashboard-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1.15fr 0.85fr;
   gap: var(--space-lg);
+  margin-bottom: var(--space-lg);
 }
 
-@media (max-width: 900px) {
-  .biz-dashboard-grid {
+@media (max-width: 1024px) {
+  .stage-grid {
     grid-template-columns: 1fr;
   }
 }
 
+/* Local Business Mode Layout */
 .biz-selector-bar {
   display: flex;
-  gap: var(--space-sm);
+  gap: 8px;
   overflow-x: auto;
-  padding-bottom: var(--space-sm);
-  margin-bottom: var(--space-md);
+  padding-bottom: 8px;
+  margin-bottom: var(--space-lg);
 }
 
 .biz-select-chip {
-  background: var(--bg-surface);
+  background: var(--roam-card);
   border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
   padding: 8px 14px;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
@@ -184,289 +52,83 @@
   transition: all var(--transition-fast);
 }
 
+.biz-select-chip:hover {
+  background: var(--roam-card-hover);
+  color: var(--roam-text-primary);
+}
+
 .biz-select-chip.active {
-  background: var(--bg-card);
-  border-color: var(--brand-primary);
+  background: rgba(6, 182, 212, 0.15);
+  border-color: var(--brand-cyan);
   color: #fff;
-  box-shadow: 0 0 12px rgba(99, 102, 241, 0.2);
-}
-
-.opportunity-card {
-  background: linear-gradient(135deg, #131a2b, #0d121e);
-  border: 1px solid rgba(6, 182, 212, 0.35);
-  border-radius: var(--radius-lg);
-  padding: var(--space-lg);
-  box-shadow: 0 0 24px rgba(6, 182, 212, 0.12);
-}
-
-.opportunity-badge {
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--brand-cyan);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: var(--space-xs);
-}
-
-.opportunity-title {
-  font-size: 1.3rem;
-  font-weight: 800;
-  margin-bottom: var(--space-sm);
-}
-
-.pulse-promo-btn {
-  margin-top: var(--space-md);
-  background: linear-gradient(135deg, #0891b2, #0284c7);
-  color: #ffffff;
-  border: none;
-  border-radius: var(--radius-md);
-  padding: 12px 20px;
   font-weight: 700;
-  cursor: pointer;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: all var(--transition-fast);
 }
 
-.pulse-promo-btn:hover {
-  filter: brightness(1.15);
-  transform: translateY(-1px);
-}
-
-/* ============================================================
-   3. DESTINATION AUTHORITY MODE SPECIFICS
-   ============================================================ */
-.authority-grid {
+.biz-dashboard-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-lg);
 }
 
-@media (max-width: 900px) {
+@media (max-width: 960px) {
+  .biz-dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Authority Control Mode Layout */
+.authority-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: var(--space-lg);
+}
+
+@media (max-width: 960px) {
   .authority-grid {
     grid-template-columns: 1fr;
   }
 }
 
 .policy-slider-box {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
   margin: var(--space-md) 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xs);
 }
 
 .policy-slider {
   width: 100%;
-  accent-color: var(--brand-primary);
+  margin: 12px 0 6px;
+  accent-color: var(--roam-accent);
   cursor: pointer;
 }
 
 .policy-impact-cards {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--space-sm);
-  margin-top: var(--space-md);
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 14px;
 }
 
 .policy-stat-card {
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(255, 255, 255, 0.025);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: var(--space-md);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  text-align: center;
 }
 
 .policy-stat-val {
-  font-size: 1.6rem;
+  font-size: 1.35rem;
   font-weight: 800;
   font-family: var(--font-mono);
-  color: var(--brand-primary);
-}
-
-/* ============================================================
-   4. BEFORE & AFTER SECTION ("SEE THE DIFFERENCE")
-   ============================================================ */
-.difference-section {
-  margin: var(--space-2xl) 0;
-  background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  padding: var(--space-xl);
-}
-
-.difference-header {
-  text-align: center;
-  margin-bottom: var(--space-xl);
-}
-
-.difference-header h2 {
-  font-size: 2rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-}
-
-.difference-header p {
-  color: var(--text-secondary);
-}
-
-.split-comparison-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-lg);
-}
-
-@media (max-width: 768px) {
-  .split-comparison-container {
-    grid-template-columns: 1fr;
-  }
-}
-
-.comp-column {
-  border-radius: var(--radius-md);
-  padding: var(--space-lg);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
-}
-
-.comp-without {
-  background: rgba(239, 68, 68, 0.04);
-  border: 1px solid rgba(239, 68, 68, 0.25);
-}
-
-.comp-with {
-  background: rgba(16, 185, 129, 0.04);
-  border: 1px solid rgba(16, 185, 129, 0.25);
-}
-
-.comp-col-title {
-  font-size: 1.2rem;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* City-Scale Calculator */
-.calc-section {
-  margin: var(--space-2xl) 0;
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  padding: var(--space-xl);
-}
-
-.calc-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-xl);
-  margin-top: var(--space-lg);
-}
-
-@media (max-width: 800px) {
-  .calc-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.calc-inputs {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
-}
-
-.calc-output-box {
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid var(--border-medium);
-  border-radius: var(--radius-md);
-  padding: var(--space-lg);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  gap: var(--space-md);
-}
-
-.calc-output-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  padding-bottom: 8px;
-}
-
-.calc-output-label {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-}
-
-.calc-output-value {
-  font-size: 1.4rem;
-  font-weight: 800;
-  font-family: var(--font-mono);
-  color: var(--load-optimal);
-}
-
-/* Guided Presentation Tour Modal */
-.tour-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(8px);
-  z-index: 1000;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-md);
-}
-
-.tour-modal-backdrop.active {
-  display: flex;
-}
-
-.tour-modal-card {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-medium);
-  border-radius: var(--radius-lg);
-  max-width: 640px;
-  width: 100%;
-  padding: var(--space-xl);
-  box-shadow: var(--shadow-lg), var(--shadow-glow-purple);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
-  position: relative;
-}
-
-.tour-step-pill {
-  font-size: 0.72rem;
-  font-family: var(--font-mono);
-  color: var(--brand-primary);
-  background: var(--brand-primary-bg);
-  border: 1px solid var(--border-medium);
-  padding: 3px 8px;
-  border-radius: var(--radius-xs);
-  align-self: flex-start;
-}
-
-.tour-step-title {
-  font-size: 1.4rem;
-  font-weight: 800;
   color: #fff;
 }
 
-.tour-step-desc {
-  color: var(--text-secondary);
-  line-height: 1.6;
-}
-
-.tour-actions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: var(--space-md);
+/* Impact Calculator & Difference Section */
+.difference-section, .calc-section {
+  margin: var(--space-2xl) 0;
+  padding: var(--space-xl) 0;
+  border-top: 1px solid var(--border-subtle);
 }
